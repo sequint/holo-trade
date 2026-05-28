@@ -1,6 +1,6 @@
 # HoloTrade
 
-High-performance federated Deep Learning / Vector Symbolic (VSA / Hyperdimensional Computing) framework exploring alongside traditional Deep Learning for deep relational embedding for HFT Order Books combined with ultra-low-latency financial signal processing and execution at the microsecond edge via VSA, crucial to HFT systems.
+High-performance hybrid Deep Learning / Vector Symbolic (VSA / Hyperdimensional Computing) framework exploring alongside traditional Deep Learning for deep relational embedding for HFT Order Books combined with ultra-low-latency financial signal processing and execution at the microsecond edge via VSA, crucial to HFT systems.
 
 > **Status:** Active Systems Research & Core Engine Engineering.
 
@@ -10,7 +10,7 @@ High-performance federated Deep Learning / Vector Symbolic (VSA / Hyperdimension
 
 Traditional Deep Learning (DL) models excel at discovering complex, non-linear relationships and market regimes from historical or macroscopic data. However, running heavy matrix multiplication and backpropagation loops on the live execution edge introduces high inference latency—rendering them impractical in the microsecond realm of High-Frequency Trading (HFT).
 
-`HoloTrade` resolves this bottleneck via an **asymmetrical, federated architecture** split into two distinct execution loops:
+`HoloTrade` resolves this bottleneck via an **asymmetrical, hyrbrid architecture** split into two distinct execution loops:
 
               +----------------------------------------+
               |         OFFLINE RESEARCH LOOP          |
