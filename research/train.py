@@ -1,7 +1,7 @@
 import numpy as np
 import torch
+from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
-import sys
 import time
 
 # Config Constants
@@ -61,5 +61,16 @@ if __name__ == "__main__":
     print("\n--- DATA PIPELINE VERIFICATION ---")
     print(f"X Tensor Shape (Expecting 3D): {X.shape}")
     print(f"y Tensor Shape (Expecting 1D): {y.shape}")
-    print(f"X Data Type: {X.dtype}")
-    print(f"y Data Type: {y.dtype}")
+
+    # Combine features and targets into a dataset
+    dataset = TensorDataset(X, y)
+
+    # Build dataloader factory belt
+    train_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+
+    # Get mini-set from factory belt to verify small dataset shape
+    first_batch_X, first_batch_y = next(iter(train_loader))
+
+    print("\n--- DATALOADER MINI-BATCH VERIFICATION ---")
+    print(f"Mini-batch X shape (Expecting [32, 20, 26]): {first_batch_X.shape}")
+    print(f"Mini-batch y shape (Expecting [32]): {first_batch_y.shape}")
