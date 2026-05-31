@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
 import time
@@ -9,6 +10,7 @@ INPUT_FEATURES = 27
 SEQUENCE_LENGTH = 20
 BATCH_SIZE = 32
 
+# --- DATA INGESTION --- #
 def load_and_clean_data(data_path):
     # Load the data (skip header in csv file)
     print("  └─ Reading raw CSV from disk... ", end="", flush=True)
@@ -49,9 +51,35 @@ def build_lstm_tensors(features, labels, sequence_length):
     
     return X_tensor, y_tensor
 
+# --- LSTM MODEL ARCHITECTURE ---#
+class MarketLSTM(nn.Module):
+    def __init__(self, input_dim, hidden_dim, num_layers, output_dim, dropout_prob=0.2):
+        super(MarketLSTM, self).__init__()
+        self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
+
+        self.lstm = nn.LSTM(
+            input_size=input_dim,
+            hidden_size=hidden_dim,
+            num_layers=num_layers,
+            batch_first=True,
+            dropout=dropout_prob if num_layers > 1 else 0.0
+        )
+        self.fc = nn.Linear(hidden_dim, output_dim)
+    
+    def forward(self, x):
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).to(x.device)
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_dim).to(x.device)
+
+        out, (hn, cn) = self.lstm(x, (h0, c0))
+        last_time_step_out = out[:, -1, :]
+        prediction = self.fc(last_time_step_out)
+
+        return prediction
+
 # Main execution
 if __name__ == "__main__":
-    DATA_PATH = "../data/train.csv"
+    DATA_PATH = "data/train.csv"
 
     print("Loading and preprossesing market data...")
 
@@ -62,15 +90,28 @@ if __name__ == "__main__":
     print(f"X Tensor Shape (Expecting 3D): {X.shape}")
     print(f"y Tensor Shape (Expecting 1D): {y.shape}")
 
-    # Combine features and targets into a dataset
-    dataset = TensorDataset(X, y)
+    print("\nInitializing LSTM Market Model...")
+    HIDDEN_DIM = 64      
+    NUM_LAYERS = 2       
+    OUTPUT_DIM = 3       
+    DROPOUT_PROB = 0.2
 
-    # Build dataloader factory belt
-    train_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+    model = MarketMarketLSTM = MarketLSTM(
+        input_dim=X.shape[2],
+        hidden_dim=HIDDEN_DIM,
+        num_layers=NUM_LAYERS,
+        output_dim=OUTPUT_DIM,
+        dropout_prob=DROPOUT_PROB
+    )
 
-    # Get mini-set from factory belt to verify small dataset shape
-    first_batch_X, first_batch_y = next(iter(train_loader))
+    # Temp dummy input tensor to validate model
+    dummy_input = torch.rand(BATCH_SIZE, SEQUENCE_LENGTH, X.shape[2])
 
-    print("\n--- DATALOADER MINI-BATCH VERIFICATION ---")
-    print(f"Mini-batch X shape (Expecting [32, 20, 26]): {first_batch_X.shape}")
-    print(f"Mini-batch y shape (Expecting [32]): {first_batch_y.shape}")
+    print("  └─ Executing test forward pass with dummy tensor... ", end="", flush=True)
+    with torch.no_grad():
+        dummy_output = model(dummy_input)
+    print("Done!")
+    
+    print("\n--- MODEL ARCHITECTURE VERIFICATION ---")
+    print(f"  └─ Dummy Input Shape Given:  {dummy_input.shape}")
+    print(f"  └─ Model Output Shape Vector: {dummy_output.shape}")
